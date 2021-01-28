@@ -7,6 +7,10 @@ from config.mail import *
 from helpers.helpers import file_get_contents, get_hostname
 from helpers.colorHelpers import BColor
 from classes.collectorBase import CollectorBase
+from subprocess import check_output
+from classes.command.iwconfig import Iwconfig
+from subprocess import check_output
+import pprint
 
 
 class CollectorRaspberry(CollectorBase):
@@ -14,11 +18,28 @@ class CollectorRaspberry(CollectorBase):
     def __init__(self, sensor_name: str, database: str):
         CollectorBase.__init__(self, sensor_name, database)
 
+    @staticmethod
+    def get_wifi_info(interface: str) -> dict:
+        return_table = {"link_quality": 0, "signal_level": 0}
+
+        # сделать нормально
+        out = check_output(["/usr/sbin/iwconfig", interface])
+        lines = out.split(b'  ')
+        for item in lines:
+            pair = item.split(b'=')
+            if pair[0] == b'Link Quality':
+                return_table['link_quality'] = int(pair[1].split(b'/')[0])
+
+            if pair[0] == b'Signal level':
+                return_table['signal_level'] = int(pair[1].split(b'/')[0].split(b" ")[0])
+        return return_table
+
     def get_json(self) -> dict:
         temperature = file_get_contents("/sys/class/thermal/thermal_zone0/temp")
         load1, load5, load15 = os.getloadavg()
         mem = psutil.virtual_memory()
         hdd = psutil.disk_usage('/')
+        wifi = self.get_wifi_info("wlan0")
 
         json_body = [
             {
@@ -33,7 +54,9 @@ class CollectorRaspberry(CollectorBase):
                     "load5": load5,
                     "load15": load15,
                     "free_mem": int(mem.available/1024/1024),
-                    "free_hdd": int(hdd.free / (2**30) * 1024)
+                    "free_hdd": int(hdd.free / (2**30) * 1024),
+                    "link_quality": wifi['link_quality'],
+                    "signal_level": wifi['signal_level']
                 }
             }
         ]

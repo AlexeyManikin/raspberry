@@ -9,6 +9,7 @@ import pwd
 import time
 import signal
 import MySQLdb
+from helpers.helperUnicode import as_default_string, as_unicode
 from queue import Queue
 from threading import Thread
 import socket
@@ -88,9 +89,7 @@ def get_util(name: str):
     :return:
     """
     command = ["/bin/which", name]
-
-    env = {"PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"}
-    p = SubprocessRunner(command=command, env=env)
+    p = SubprocessRunner(command=command)
     p.run()
 
     return p.wait().rstrip("\n".encode('utf-8'))
