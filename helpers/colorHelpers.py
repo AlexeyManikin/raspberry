@@ -18,6 +18,7 @@ class BColor(object):
     STATUS_PROCESS = 'process'
     STATUS_WARNING = 'warning'
     STATUS_ERROR = 'error'
+    STATUS_INFO = 'info'
 
     def __init__(self):
         pass
@@ -60,6 +61,8 @@ class BColor(object):
                 message_type = BColor.parsing_message(' <YELLOW> WARNING: <RESET>')
             elif message_type == BColor.STATUS_PROCESS:
                 message_type = BColor.parsing_message(' <BLUE> PROCESS: <RESET>')
+            elif message_type == BColor.STATUS_INFO:
+                message_type = BColor.parsing_message(' <MAGENTA> INFO: <RESET>')
             else:
                 message_type = BColor.parsing_message(' <RED> ERROR: <RESET>')
 
@@ -104,3 +107,12 @@ class BColor(object):
         :rtype: unicode
         """
         return BColor.format_message(BColor.STATUS_PROCESS, message + "... ", pid=pid)
+
+    @staticmethod
+    def info(message: str, pid: int or None = None):
+        """
+        :type message: unicode
+        :type pid: int
+        :rtype: unicode
+        """
+        return BColor.format_message(BColor.STATUS_INFO, message + "... ", pid=pid)

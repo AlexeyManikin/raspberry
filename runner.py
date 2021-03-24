@@ -11,6 +11,7 @@ from classes.collectorRaspberry import CollectorRaspberry
 from classes.collectorTempDS18B20 import CollectorTempDS18B20
 from classes.collectorTempANT10 import CollectorTempANT10
 from classes.collectorSenseHat import CollectorSenseHat
+from classes.collectorGps import CollectorGps
 
 
 PROGRAM_NAME = 'runner'
@@ -23,21 +24,25 @@ if __name__ == "__main__":
             BColor.error("Program %s already running" % PROGRAM_NAME)
             sys.exit(1)
 
-        # sensorSenseHat = CollectorSenseHat("raspberry_pi", "home")
-        # sensorSenseHat.start(1)
-        # sensorSenseHat.run()
+        sensorSenseHat = CollectorGps("Gps", "home")
+        sensorSenseHat.start(10)
+        sensorSenseHat.run()
+
+        sensorSenseHat = CollectorSenseHat("SenseHat", "home")
+        sensorSenseHat.start(5)
+        sensorSenseHat.run()
 
         sensorRaspberry = CollectorRaspberry("raspberry_pi", "home")
-        sensorRaspberry.start(1)
+        sensorRaspberry.start(30)
         sensorRaspberry.run()
 
-        sensorLivingRoom = CollectorTempDS18B20("sleeping_room", "28-3c01d6076425", "home")
-        sensorLivingRoom.start(1)
-        sensorLivingRoom.run()
-
-        sensorLivingRoom2 = CollectorTempANT10("sleeping_room2",  "home")
-        sensorLivingRoom2.start(1)
-        sensorLivingRoom2.run()
+        # sensorLivingRoom = CollectorTempDS18B20("sleeping_room", "28-3c01d6076425", "home")
+        # sensorLivingRoom.start(1)
+        # sensorLivingRoom.run()
+        #
+        # sensorLivingRoom2 = CollectorTempANT10("sleeping_room2",  "home")
+        # sensorLivingRoom2.start(1)
+        # sensorLivingRoom2.run()
 
         while True:
             schedule.run_pending()

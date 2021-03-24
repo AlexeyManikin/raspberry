@@ -1,11 +1,5 @@
 __author__ = 'Alexey Y Manikin'
 
-import os
-import os.path
-import psutil
-from abc import ABC, abstractmethod
-from config.mail import *
-from helpers.helpers import file_get_contents, get_hostname
 from helpers.colorHelpers import BColor
 from classes.collectorBase import CollectorBase
 from sense_hat import SenseHat
@@ -34,47 +28,74 @@ class CollectorSenseHat(CollectorBase):
 
     def __init__(self, sensor_name: str, database: str):
         CollectorBase.__init__(self, sensor_name, database)
+        self.sense = SenseHat(imu_settings_file="RTIMULib.ini")
 
-    def get_json(self) -> dict:
+    def get_json(self) -> list:
+        fields = {}
 
-        sense = SenseHat(imu_settings_file="RTIMULib.ini")
-        humidity = sense.get_humidity()
-        print("Humidity: %s %%rH" % humidity)
+        humidity = self.sense.get_humidity()
+        BColor.info("Humidity: %s %%rH" % humidity)
+        fields['humidity'] = float(humidity)
 
-        temp_hum = sense.get_temperature_from_humidity()
-        print("Temperature: %s C" % temp_hum)
+        temp_hum = self.sense.get_temperature_from_humidity()
+        BColor.info("Temperature: %s C" % temp_hum)
+        fields['temperature_hum'] = float(temp_hum)
 
-        temp_pre = sense.get_temperature_from_pressure()
-        print("Temperature: %s C" % temp_pre)
+        temp_pre = self.sense.get_temperature_from_pressure()
+        BColor.info("Temperature: %s C" % temp_pre)
+        fields['temperature_pre'] = float(temp_pre)
 
-        pressure = sense.get_pressure()
-        print("Pressure: %s Millibars" % pressure)
+        pressure = self.sense.get_pressure()
+        BColor.info("Pressure: %s Millibars" % pressure)
+        fields['pressure'] = float(pressure)
 
-        sense.set_imu_config(True, True, True)
-        orientation_rad = sense.get_orientation_radians()
-        print("1: p: {pitch}, r: {roll}, y: {yaw}".format(**orientation_rad))
+        self.sense.set_imu_config(True, True, True)
+        orientation_rad = self.sense.get_orientation_radians()
+        BColor.info("1: p: {pitch}, r: {roll}, y: {yaw}".format(**orientation_rad))
 
-        orientation = sense.get_orientation_degrees()
-        print("2: p: {pitch}, r: {roll}, y: {yaw}".format(**orientation))
+        orientation = self.sense.get_orientation_degrees()
+        BColor.info("2: p: {pitch}, r: {roll}, y: {yaw}".format(**orientation))
+        fields['orientation_degrees_pitch'] = float(orientation['pitch'])
+        fields['orientation_degrees_roll'] = float(orientation['roll'])
+        fields['orientation_degrees_yaw'] = float(orientation['yaw'])
 
-        orientation = sense.get_orientation()
-        print("3: p: {pitch}, r: {roll}, y: {yaw}".format(**orientation))
+        orientation = self.sense.get_orientation()
+        BColor.info("3: p: {pitch}, r: {roll}, y: {yaw}".format(**orientation))
 
-        north = sense.get_compass()
-        print("North: %s" % north)
+        north = self.sense.get_compass()
+        BColor.info("North: %s" % north)
+        fields['compass_north'] = float(north)
 
-        raw = sense.get_compass_raw()
-        print("x: {x}, y: {y}, z: {z}".format(**raw))
+        raw = self.sense.get_compass_raw()
+        BColor.info("x: {x}, y: {y}, z: {z}".format(**raw))
 
-        gyro_only = sense.get_gyroscope()
-        print("p: {pitch}, r: {roll}, y: {yaw}".format(**gyro_only))
+        gyro_only = self.sense.get_gyroscope()
+        BColor.info("p: {pitch}, r: {roll}, y: {yaw}".format(**gyro_only))
+        fields['gyroscope_pitch'] = float(gyro_only['pitch'])
+        fields['gyroscope_roll'] = float(gyro_only['roll'])
+        fields['gyroscope_yaw'] = float(gyro_only['yaw'])
 
-        raw = sense.get_gyroscope_raw()
-        print("x: {x}, y: {y}, z: {z}".format(**raw))
+        raw = self.sense.get_gyroscope_raw()
+        BColor.info("x: {x}, y: {y}, z: {z}".format(**raw))
 
-        accel_only = sense.get_accelerometer()
-        print("p: {pitch}, r: {roll}, y: {yaw}".format(**accel_only))
+        accel_only = self.sense.get_accelerometer()
+        BColor.info("p: {pitch}, r: {roll}, y: {yaw}".format(**accel_only))
+        fields['accelerometer_pitch'] = float(accel_only['pitch'])
+        fields['accelerometer_roll'] = float(accel_only['roll'])
+        fields['accelerometer_yaw'] = float(accel_only['yaw'])
 
-        raw = sense.get_accelerometer_raw()
-        print("x: {x}, y: {y}, z: {z}".format(**raw))
-        return []
+        raw = self.sense.get_accelerometer_raw()
+        BColor.info("x: {x}, y: {y}, z: {z}".format(**raw))
+
+        json_body = [
+            {
+                "measurement": "sense_hat",
+                "tags": {
+                    "id": "sense_hat",
+                    "name": "sense_hat"
+                },
+                "fields": fields
+            }
+        ]
+
+        return json_body

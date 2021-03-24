@@ -1,11 +1,8 @@
 __author__ = 'Alexey Y Manikin'
 
-import os
 import os.path
-import psutil
-from abc import ABC, abstractmethod
 from config.mail import *
-from helpers.helpers import file_get_contents, get_hostname
+from helpers.helpers import file_get_contents
 from helpers.colorHelpers import BColor
 from classes.collectorBase import CollectorBase
 
@@ -21,7 +18,7 @@ class CollectorTempDS18B20(CollectorBase):
         self.sensor_id = sensor_id
         self.sensor_data_name = os.path.abspath("/sys/bus/w1/devices/%s/temperature" % self.sensor_id)
 
-    def get_json(self) -> dict:
+    def get_json(self) -> list:
         if not os.path.exists(self.sensor_data_name):
             BColor.error("Sensor %s file %s not exist" % (self.sensor_name, self.sensor_data_name))
             return []

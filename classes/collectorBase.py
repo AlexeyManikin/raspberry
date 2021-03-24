@@ -35,11 +35,11 @@ class CollectorBase(object):
 
     def start(self, time: int):
         self.run_status = 1
-        schedule.every(time).minutes.do(self.run)
+        schedule.every(time).seconds.do(self.run)
 
     def stop(self):
         self.run_status = 0
 
     @abstractmethod
-    def get_json(self) -> dict:
+    def get_json(self) -> list:
         pass

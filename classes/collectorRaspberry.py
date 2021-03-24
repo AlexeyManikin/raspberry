@@ -1,16 +1,11 @@
 __author__ = 'Alexey Y Manikin'
 
-import os
 import psutil
-from abc import ABC, abstractmethod
 from config.mail import *
 from helpers.helpers import file_get_contents, get_hostname
 from helpers.colorHelpers import BColor
 from classes.collectorBase import CollectorBase
 from subprocess import check_output
-from classes.command.iwconfig import Iwconfig
-from subprocess import check_output
-import pprint
 
 
 class CollectorRaspberry(CollectorBase):
@@ -34,7 +29,7 @@ class CollectorRaspberry(CollectorBase):
                 return_table['signal_level'] = int(pair[1].split(b'/')[0].split(b" ")[0])
         return return_table
 
-    def get_json(self) -> dict:
+    def get_json(self) -> list:
         temperature = file_get_contents("/sys/class/thermal/thermal_zone0/temp")
         load1, load5, load15 = os.getloadavg()
         mem = psutil.virtual_memory()
@@ -49,17 +44,15 @@ class CollectorRaspberry(CollectorBase):
                     "hostname": get_hostname()
                 },
                 "fields": {
-                    "cpu_temperature": int(temperature)/1000,
-                    "load1": load1,
-                    "load5": load5,
-                    "load15": load15,
-                    "free_mem": int(mem.available/1024/1024),
-                    "free_hdd": int(hdd.free / (2**30) * 1024),
-                    "link_quality": wifi['link_quality'],
-                    "signal_level": wifi['signal_level']
+                    "cpu_temperature": int(temperature) / 1000,
+                    "load1": float(load1),
+                    "load5": float(load5),
+                    "load15": float(load15),
+                    "free_mem": int(mem.available / 1024 / 1024),
+                    "free_hdd": int(hdd.free / (2 ** 30) * 1024),
+                    "link_quality": float(wifi['link_quality']),
+                    "signal_level": float(wifi['signal_level'])
                 }
             }
         ]
-
-        BColor.process("Temperature cpu is %s" % str(int(temperature)/1000))
         return json_body
