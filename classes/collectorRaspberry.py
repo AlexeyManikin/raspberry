@@ -6,6 +6,7 @@ from helpers.helpers import file_get_contents, get_hostname
 from helpers.colorHelpers import BColor
 from classes.collectorBase import CollectorBase
 from subprocess import check_output
+import pprint
 
 
 class CollectorRaspberry(CollectorBase):
@@ -55,4 +56,7 @@ class CollectorRaspberry(CollectorBase):
                 }
             }
         ]
+
+        BColor.info(pprint.pformat(json_body))
+
         return json_body

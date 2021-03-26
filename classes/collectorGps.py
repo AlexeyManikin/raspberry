@@ -7,6 +7,7 @@ import serial
 import time
 import traceback
 import datetime
+import pprint
 
 """
 https://www.elecrow.com/download/SIM800%20Series_GNSS_Application%20Note%20V1.00.pdf
@@ -106,28 +107,66 @@ class CollectorGps(CollectorBase):
         try:
             gps_info['GPS_run_status'] = bool(splited_string[0])
             gps_info['Fix_status'] = bool(splited_string[1])
-            gps_info['UTC_date'] = time.mktime(
-                datetime.datetime.strptime(splited_string[2], '%Y%m%d%H%M%S.%f').timetuple())
-            gps_info['Latitude'] = float(splited_string[3])
-            gps_info['Longitude'] = float(splited_string[4])
-            gps_info['MSL_Altitude'] = float(splited_string[5])
-            gps_info['Speed_Over_Ground'] = float(splited_string[6])
-            gps_info['Course_Over_Ground '] = float(splited_string[7])
-            gps_info['Fix_Mode '] = int(splited_string[8])
-            gps_info['Reserved1'] = splited_string[9]
-            gps_info['HDOP'] = float(splited_string[10])  # https://ru.wikipedia.org/wiki/DOP
-            gps_info['PDOP'] = float(splited_string[11])
-            gps_info['VDOP'] = float(splited_string[12])
-            gps_info['Reserved2'] = splited_string[13]
-            gps_info['GPS_Satellites_in_View '] = int(splited_string[14])
-            gps_info['GNSS_Satellites_Used'] = int(splited_string[15])
-            gps_info['GLONASS_Satellites_in_View'] = int(splited_string[16])
-            gps_info['Reserved3'] = splited_string[17]
-            gps_info['C_N0_max'] = int(splited_string[18])
-            gps_info['HPA'] = float(splited_string[19])
-            gps_info['VPA'] = float(splited_string[20])
+            if splited_string[3] != '':
+                gps_info['Latitude'] = float(splited_string[3])
+
+            if splited_string[4] != '':
+                gps_info['Longitude'] = float(splited_string[4])
+
+            if splited_string[5] != '':
+                gps_info['MSL_Altitude'] = float(splited_string[5])
+
+            if splited_string[6] != '':
+                gps_info['Speed_Over_Ground'] = float(splited_string[6])
+                gps_info['Speed_Over_Ground_knot'] = float(splited_string[6])/1.852
+
+            if splited_string[7] != '':
+                gps_info['Course_Over_Ground '] = float(splited_string[7])
+
+            if splited_string[8] != '':
+                gps_info['Fix_Mode '] = int(splited_string[8])
+
+            if splited_string[9] != '':
+                gps_info['Reserved1'] = splited_string[9]
+
+            if splited_string[10] != '':
+                gps_info['HDOP'] = float(splited_string[10])  # https://ru.wikipedia.org/wiki/DOP
+
+            if splited_string[11] != '':
+                gps_info['PDOP'] = float(splited_string[11])
+
+            if splited_string[12] != '':
+                gps_info['VDOP'] = float(splited_string[12])
+
+            if splited_string[13] != '':
+                gps_info['Reserved2'] = splited_string[13]
+
+            if splited_string[14] != '':
+                gps_info['GPS_Satellites_in_View '] = int(splited_string[14])
+
+            if splited_string[15] != '':
+                gps_info['GNSS_Satellites_Used'] = int(splited_string[15])
+
+            if splited_string[16] != '':
+                gps_info['GLONASS_Satellites_in_View'] = int(splited_string[16])
+
+            if splited_string[17] != '':
+                gps_info['Reserved3'] = splited_string[17]
+
+            if splited_string[18] != '':
+                gps_info['C_N0_max'] = int(splited_string[18])
+
+            if splited_string[19] != '':
+                gps_info['HPA'] = float(splited_string[19])
+
+            if splited_string[20] != '':
+                gps_info['VPA'] = float(splited_string[20])
+
+            if splited_string[2] != '':
+                gps_info['UTC_date'] = time.mktime(
+                    datetime.datetime.strptime(splited_string[2], '%Y%m%d%H%M%S.%f').timetuple())
         except:
-            return gps_info
+            pass
 
         return gps_info
 
@@ -144,6 +183,7 @@ class CollectorGps(CollectorBase):
                     "fields": self.parce_CGNSINF(position)
                 }
             ]
+            BColor.process(pprint.pformat(json_body))
             return json_body
         except Exception as e:
             print((traceback.format_exc()))

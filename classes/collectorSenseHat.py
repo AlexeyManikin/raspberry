@@ -3,6 +3,7 @@ __author__ = 'Alexey Y Manikin'
 from helpers.colorHelpers import BColor
 from classes.collectorBase import CollectorBase
 from sense_hat import SenseHat
+import pprint
 
 """
 any ground pin
@@ -59,6 +60,16 @@ class CollectorSenseHat(CollectorBase):
         fields['orientation_degrees_roll'] = float(orientation['roll'])
         fields['orientation_degrees_yaw'] = float(orientation['yaw'])
 
+        if float(orientation['pitch']) > 180:
+            fields['orientation_degrees_pitch_relatively'] = - (360 - float(orientation['pitch']))
+        else:
+            fields['orientation_degrees_pitch_relatively'] = float(orientation['pitch'])
+
+        if float(orientation['roll']) > 180:
+            fields['orientation_degrees_roll_relatively'] = - (360 - float(orientation['roll']))
+        else:
+            fields['orientation_degrees_roll_relatively'] = float(orientation['roll'])
+
         orientation = self.sense.get_orientation()
         BColor.info("3: p: {pitch}, r: {roll}, y: {yaw}".format(**orientation))
 
@@ -97,5 +108,7 @@ class CollectorSenseHat(CollectorBase):
                 "fields": fields
             }
         ]
+
+        BColor.info(pprint.pformat(json_body))
 
         return json_body

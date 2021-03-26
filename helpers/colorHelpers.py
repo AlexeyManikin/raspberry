@@ -115,4 +115,5 @@ class BColor(object):
         :type pid: int
         :rtype: unicode
         """
-        return BColor.format_message(BColor.STATUS_INFO, message + "... ", pid=pid)
+        return
+        #return BColor.format_message(BColor.STATUS_INFO, message + "... ", pid=pid)
